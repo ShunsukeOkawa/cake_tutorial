@@ -1,0 +1,104 @@
+button:focus,
+.button:focus {
+    background-color: inherit;
+    color: #1798A5;
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-danger {
+    color: #d9534f;
+}
+
+.btn-danger:hover {
+    color: #c9302c;
+}
+
+/* いいねボタン */
+
+.btn-good {
+    display: inline-flex;
+    align-items: center;
+    color: #1798A5;
+    background-color: transparent;
+    padding: 0.25rem 1rem;
+    margin-left: 1rem;
+    border: 1px solid #1798A5;
+    border-radius: 9999px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease,
+                box-shadow 0.2s ease, transform 0.05s ease;
+}
+
+.btn-good:hover {
+    color: #1798A5;
+    background-color: rgba(23, 152, 165, 0.08);
+    box-shadow: 0 0 0 2px rgba(23, 152, 165, 0.15);
+}
+
+.btn-good:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.btn-good-icon {
+    width: 1.25em;
+    height: 1.25em;
+    margin-left: 0.25rem;
+    margin-bottom: 0.15rem;
+    display: block;
+}
+
+.btn-good.is-liked {
+    background-color: #3cb7c3;
+    color: #ffffff;
+}
+
+/* サイドバー */
+
+.sidebar {
+    padding: 1rem;
+}
+
+.sidebar-title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.accordion-section {
+    margin-bottom: 0.5rem;
+}
+
+.accordion-header {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color:#1798A5;
+    border: none;
+    padding: 0.4rem 0;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.accordion-body {
+    list-style: none;
+    margin: 0 0 1rem 0;
+    padding-left: 0.5rem;
+    display: none;
+}
+
+#actions-sidebar button {
+    margin: 0 0 0.5rem 0 !important;
+}
+
+.accordion-section.is-open .accordion-body {
+    display: block;/
+}
+
+.sidebar-logout {
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+    padding-top: 0.8rem;
+}

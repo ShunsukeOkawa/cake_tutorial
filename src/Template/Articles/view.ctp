@@ -1,18 +1,35 @@
 <!-- File: src/Template/Articles/view.ctp -->
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('記事の一覧'), ['action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('タグの一覧'), ['controller' => 'Tags', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('タグの追加'), ['controller' => 'Tags', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
+
+<?= $this->element('sidebar') ?>
 
 <div class="tags view large-9 medium-8 columns content">
 
     <h1><?= h($article->title) ?></h1>
-    <p><?= h($article->body) ?></p>
-    <p><small>作成日時: <?= $article->created->format(DATE_RFC850) ?></small></p>
-    <p><?= $this->Html->link('Edit', ['action' => 'edit', $article->slug]) ?></p>
+    <p><?= nl2br(h($article->body)) ?></p>
+    <p>
+        <small>作成日時: <?= $article->created->format('Y年m月d日 H:i') ?></small>
+        <small style="margin-left: 1em;">いいね数：</small>
+        <small id="likeCount"><?= $likeCount ?></small>
+        <button
+            id = "likeBtn"
+            type="button"
+            class="btn-good <?= $isLike ? 'is-liked' : '' ?>"
+            onclick="likeArticle('<?= h($article->id) ?>')"
+        >
+            いいね
+            <img src="<?= $this->Url->image('good.png') ?>" alt="" class="btn-good-icon">
+        </button>
+    </p>
+    <p><?= $this->Html->link('編集', ['action' => 'edit', $article->slug]) ?></p>
+    <p>
+        <?= $this->Form->postLink(
+            '削除',
+            ['action' => 'delete', $article->slug],
+            [
+                'confirm' => __('「{0}」を削除してもよろしいですか？', $article->title),
+                'class' => 'btn-danger'
+            ]
+        ) ?>
+    </p>
 
 </div>

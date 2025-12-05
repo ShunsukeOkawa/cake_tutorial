@@ -11,7 +11,7 @@ class ArticlesController extends AppController
     {
         $action = $this->request->getParam('action');
         // add および tags アクションは、常にログインしているユーザーに許可されます。
-        if (in_array($action, ['add', 'tags'])) {
+        if (in_array($action, ['add', 'tags', 'likeToArticle'])) {
             return true;
         }
 
@@ -32,7 +32,10 @@ class ArticlesController extends AppController
         parent::initialize();
 
         $this->loadComponent('Paginator');
-        $this->loadComponent('Flash'); // FlashComponent をインクルード
+        $this->loadComponent('Flash'); 
+        $this->loadComponent('RequestHandler'); 
+
+        $this->loadModel('Likes');
 
         $this->Auth->allow(['tags']);
     }
@@ -42,14 +45,43 @@ class ArticlesController extends AppController
     public function index()
     {
         $this->loadComponent('Paginator');
-        $articles = $this->Paginator->paginate($this->Articles->find());
-        $this->set(compact('articles'));
+        $articlesQuery = $this->Articles->find()
+                ->select([
+                    'Articles.id',
+                    'Articles.title',
+                    'Articles.slug',
+                    'Articles.created',
+                    'like_count' => $this->Likes->find()->func()->count('Likes.id')
+                ])
+                ->leftJoinWith('Likes')
+                ->group(['Articles.id']);
+
+        $articles = $this->Paginator->paginate($articlesQuery);
+
+        $this->set(compact('articles'));        
+
     }
 
     public function view($slug = null)
     {
         $article = $this->Articles->findBySlug($slug)->firstOrFail();
-        $this->set(compact('article'));
+        $userId = $this->Auth->user('id');
+
+        // いいね数
+        $likeCount = $this->Likes->find()
+            ->where(['article_id' => $article->id])
+            ->count();
+
+        // 自分がいいね済みかどうか
+        $isLike = false;
+        if ($userId) {
+            $isLike = $this->Likes->exists([
+                'user_id'    => $userId,
+                'article_id' => $article->id,
+            ]);
+        }
+
+        $this->set(compact('article', 'isLike', 'likeCount'));
     }
 
     public function add()
@@ -62,10 +94,10 @@ class ArticlesController extends AppController
             $article->user_id = $this->Auth->user('id');
 
             if ($this->Articles->save($article)) {
-                $this->Flash->success(__('Your article has been saved.'));
+                $this->Flash->success(__('「{0}」が追加されました。', $article->title));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Unable to add your article.'));
+            $this->Flash->error(__('記事の追加に失敗しました。'));
         }
         // タグのリストを取得
         $tags = $this->Articles->Tags->find('list');
@@ -88,10 +120,10 @@ class ArticlesController extends AppController
                 'accessibleFields' => ['user_id' => false]
             ]);
             if ($this->Articles->save($article)) {
-                $this->Flash->success(__('Your article has been updated.'));
+                $this->Flash->success(__('「{0}」の編集が保存されました。', $article->title));
                 return $this->redirect(['action' => 'index']);
             }
-            $this->Flash->error(__('Unable to update your article.'));
+            $this->Flash->error(__('記事の編集に失敗しました。'));
         }
 
         // タグのリストを取得
@@ -109,7 +141,7 @@ class ArticlesController extends AppController
 
         $article = $this->Articles->findBySlug($slug)->firstOrFail();
         if ($this->Articles->delete($article)) {
-            $this->Flash->success(__('The {0} article has been deleted.', $article->title));
+            $this->Flash->success(__('「{0}」が削除されました。', $article->title));
             return $this->redirect(['action' => 'index']);
         }
     }
@@ -126,5 +158,39 @@ class ArticlesController extends AppController
             'articles' => $articles,
             'tags' => $tags
         ]);
+    }
+
+    public function likeToArticle($articleId){
+        $this->request->allowMethod(['post']);
+
+        $userId = $this->Auth->user('id');
+        if (!$userId) {
+            return $this->response->withStatus(401);
+        }
+
+        // 「いいね」しているか確認
+        $like = $this->Likes->find()
+            ->where(['user_id' => $userId, 'article_id' => $articleId])
+            ->first();
+
+        if ($like) {
+            $this->Likes->delete($like);
+            $isLike = false;
+        } else {
+            $like = $this->Likes->newEntity([
+                'user_id'    => $userId,
+                'article_id' => $articleId,
+            ]);
+            $this->Likes->save($like);
+            $isLike = true;
+        }
+
+        $likeCount = $this->Likes->find()
+            ->where(['article_id' => $articleId])
+            ->count();
+
+        $this->set(compact('isLike', 'likeCount'));
+        $this->set('_serialize', ['isLike', 'likeCount']);
+
     }
 }

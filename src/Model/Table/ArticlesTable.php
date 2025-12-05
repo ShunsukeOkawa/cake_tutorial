@@ -13,6 +13,11 @@ class ArticlesTable extends Table
     {
         $this->addBehavior('Timestamp');
         $this->belongsToMany('Tags'); // この行を追加
+
+        $this->hasMany('Likes', [
+        'foreignKey' => 'article_id',
+        'dependent' => true,
+    ]);
     }
 
     public function beforeSave($event, $entity, $options)

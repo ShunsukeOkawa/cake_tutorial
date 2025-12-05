@@ -4,14 +4,9 @@
  * @var \App\Model\Entity\Tag[]|\Cake\Collection\CollectionInterface $tags
  */
 ?>
-<nav class="large-3 medium-4 columns" id="actions-sidebar">
-    <ul class="side-nav">
-        <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('タグの追加'), ['action' => 'add']) ?></li>
-        <li><?= $this->Html->link(__('記事の一覧'), ['controller' => 'Articles', 'action' => 'index']) ?></li>
-        <li><?= $this->Html->link(__('記事の追加'), ['controller' => 'Articles', 'action' => 'add']) ?></li>
-    </ul>
-</nav>
+
+<?= $this->element('sidebar') ?>
+
 <div class="tags index large-9 medium-8 columns content">
     <h3><?= __('タグ一覧') ?></h3>
     <table cellpadding="0" cellspacing="0">
@@ -29,8 +24,8 @@
             <tr>
                 <td><?= $this->Number->format($tag->id) ?></td>
                 <td><?= h($tag->title) ?></td>
-                <td><?= h($tag->created) ?></td>
-                <td><?= h($tag->modified) ?></td>
+                <td><?= h($tag->created->format('Y年m月d日 H:i')) ?></td>
+                <td><?= h($tag->modified->format('Y年m月d日 H:i')) ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('詳細'), ['action' => 'view', $tag->id]) ?>
                     <?= $this->Html->link(__('編集'), ['action' => 'edit', $tag->id]) ?>
